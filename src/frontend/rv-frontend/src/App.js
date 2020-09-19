@@ -3,6 +3,7 @@ import './App.css';
 import Search from './components/search-bar.js'
 import DoubleChart from './components/two-sided-chart.js';
 import { FiHeart } from 'react-icons/fi'
+const request = require('request');
 
 function App() {
   const [inputValue, setInputValue] = useState("");
@@ -16,10 +17,20 @@ function App() {
   function submitForm(event) {
     event.preventDefault();
     alert('search query submitted! ' + inputValue);
-    // and here is where we would make the request
+
+    // make request to the backend endpoint
+    request.get({
+      url: 'http://127.0.0.1:5000/visualize?product_name=' + inputValue
+    }, function (err, httpResponse, body) {
+      if (err) {
+        alert(err);
+      }
+      console.log(body);
+
+      setShowResult(true);
+    })
 
 
-    setShowResult(true);
   }
 
   return (
@@ -31,20 +42,19 @@ function App() {
         <Search inputValue={inputValue}
                 onChange={searchOnChange}
                 onSubmit={submitForm}/>
-        {showResult &&
-          <div>Your query was submitted! Here is your data</div>
-        }
 
 
       </header>
-      <DoubleChart
-        vnegative={2}
-        negative={1}
-        snegative={2}
-        spositive={5}
-        positive={5}
-        vpositive={5}
-      />
+      {showResult &&
+        <DoubleChart
+          vnegative={2}
+          negative={1}
+          snegative={2}
+          spositive={5}
+          positive={5}
+          vpositive={5}
+        />
+      }
       <footer>
         Made with <FiHeart/> for HackMIT 2020. <a href="https://github.com/tchittesh/review-visualizer">View on Github</a>
       </footer>

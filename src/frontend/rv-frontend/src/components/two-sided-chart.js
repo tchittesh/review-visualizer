@@ -36,7 +36,7 @@ function DoubleChart(props) {
     });
   }
   const data = getData()
-  console.log(data)
+  //console.log(data)
 
   const signs = new Map([].concat(
     data.negatives.map(d => [d, -1]),
