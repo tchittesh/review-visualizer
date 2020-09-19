@@ -8,6 +8,7 @@ const request = require('request');
 function App() {
   const [inputValue, setInputValue] = useState("");
   const [showResult, setShowResult] = useState(false);
+  const [sentiment_display, set_sentiment_display] = useState({})
 
   function searchOnChange(event) {
     event.preventDefault();
@@ -25,12 +26,48 @@ function App() {
       if (err) {
         alert(err);
       }
+      body = JSON.parse(body)
       console.log(body);
+      console.log(body['overall_sentiment'])
+      set_sentiment_display(body['overall_sentiment'])
 
-      setShowResult(true);
+      //setShowResult(true);
     })
 
+  }
 
+  function isEmpty(obj) {
+    for (var key in obj) {
+      if (obj.hasOwnProperty(key)) {
+        return false;
+      }
+    }
+    return true;
+  }
+
+  useEffect(() => {
+    if (!isEmpty(sentiment_display)) {
+      setShowResult(true);
+    }
+  }, [sentiment_display])
+
+  function formatDoubleChart(body) {
+    console.log(body)
+    if (!body) {
+      return
+    }
+    if (body.hasOwnProperty("positive")) {
+      console.log(body["positive"])
+    } else {
+      console.log('no')
+    }
+    return (
+      <DoubleChart vnegative={body["very negative"] || 0}
+                   negative={body["negative"] || 0}
+                   positive={body["positive"] || 0}
+                   vpositive={body["very positive"] || 0}
+      />
+    )
   }
 
   return (
@@ -43,17 +80,9 @@ function App() {
                 onChange={searchOnChange}
                 onSubmit={submitForm}/>
 
-
       </header>
       {showResult &&
-        <DoubleChart
-          vnegative={2}
-          negative={1}
-          snegative={2}
-          spositive={5}
-          positive={5}
-          vpositive={5}
-        />
+        formatDoubleChart(sentiment_display)
       }
       <footer>
         Made with <FiHeart/> for HackMIT 2020. <a href="https://github.com/tchittesh/review-visualizer">View on Github</a>

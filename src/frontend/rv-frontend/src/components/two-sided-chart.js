@@ -13,8 +13,8 @@ function DoubleChart(props) {
     let data = [
       {name: defaultName, category: "Very negative", value: props.vnegative},
       {name: defaultName, category: "Negative", value: props.negative},
-      {name: defaultName, category: "Slightly negative", value: props.snegative},
-      {name: defaultName, category: "Slightly positive", value: props.spositive},
+      //{name: defaultName, category: "Slightly negative", value: props.snegative},
+      //{name: defaultName, category: "Slightly positive", value: props.spositive},
       {name: defaultName, category: "Positive", value: props.positive},
       {name: defaultName, category: "Very positive", value: props.vpositive}
     ]
@@ -31,8 +31,8 @@ function DoubleChart(props) {
       format: ".0%",
       negative: "← More negative keywords",
       positive: "More positive keywords →",
-      negatives: ["Very negative", "Negative", "Slightly negative"],
-      positives: ["Slightly positive", "Positive", "Very positive"]
+      negatives: ["Very negative", "Negative"],
+      positives: ["Positive", "Very positive"]
     });
   }
   const data = getData()
