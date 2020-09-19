@@ -13,6 +13,6 @@ def load_amazon_dataset(path, max_reviews = 100000):
                 column_names = row
             elif len(row) == 15:
                 data.append(row)
-            if len(data) > max_reviews:
+            if len(data) >= max_reviews:
                 break
     return pd.DataFrame(data, columns = column_names)
