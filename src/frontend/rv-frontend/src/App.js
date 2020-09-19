@@ -1,23 +1,37 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import logo from './logo.svg';
 import './App.css';
+import Search from './components/search-bar.js'
 
 function App() {
+  const [inputValue, setInputValue] = useState("Search here");
+  const [showResult, setShowResult] = useState(false);
+
+  function searchOnChange(event) {
+    event.preventDefault();
+    setInputValue(event.target.value);
+  }
+
+  function submitForm(event) {
+    event.preventDefault();
+    alert('search query submitted! ' + inputValue);
+    // and here is where we would make the request
+
+
+    setShowResult(true);
+  }
+
   return (
     <div className="App">
       <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
+        Review Visualizer
+        <br/>
+        <Search inputValue={inputValue}
+                onChange={searchOnChange}
+                onSubmit={submitForm}/>
+        {showResult &&
+          <div>Your query was submitted! Here is your data</div>
+        }
       </header>
     </div>
   );
