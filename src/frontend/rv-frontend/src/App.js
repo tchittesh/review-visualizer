@@ -9,6 +9,7 @@ function App() {
   const [inputValue, setInputValue] = useState("");
   const [showResult, setShowResult] = useState(false);
   const [sentiment_display, set_sentiment_display] = useState({})
+  const [prod_name, set_prod_name] = useState("")
 
   function searchOnChange(event) {
     event.preventDefault();
@@ -29,6 +30,7 @@ function App() {
       body = JSON.parse(body)
       console.log(body);
       console.log(body['overall_sentiment'])
+      set_prod_name(inputValue);
       set_sentiment_display(body['overall_sentiment'])
 
       //setShowResult(true);
@@ -51,7 +53,7 @@ function App() {
     }
   }, [sentiment_display])
 
-  function formatDoubleChart(body) {
+  function formatDoubleChart(body, prod_name) {
     console.log(body)
     if (!body) {
       return
@@ -66,6 +68,7 @@ function App() {
                    negative={body["negative"] || 0}
                    positive={body["positive"] || 0}
                    vpositive={body["very positive"] || 0}
+                   name={prod_name}
       />
     )
   }
@@ -82,7 +85,9 @@ function App() {
 
       </header>
       {showResult &&
-        formatDoubleChart(sentiment_display)
+        <div className="chart-summary">
+          {formatDoubleChart(sentiment_display, prod_name)}
+        </div>
       }
       <footer>
         Made with <FiHeart/> for HackMIT 2020. <a href="https://github.com/tchittesh/review-visualizer">View on Github</a>

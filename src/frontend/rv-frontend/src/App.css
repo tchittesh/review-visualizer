@@ -33,3 +33,12 @@ footer {
 a {
   color: inherit;
 }
+
+.chart-summary {
+  width:90%;
+  display: block;
+  margin-left: auto;
+  margin-right: auto;
+  align-items:center;
+  justify-content: center;
+}
