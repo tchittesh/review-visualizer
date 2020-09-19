@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
-import logo from './logo.svg';
 import './App.css';
 import Search from './components/search-bar.js'
+import DoubleChart from './components/two-sided-chart.js';
 import { FiHeart } from 'react-icons/fi'
 
 function App() {
@@ -35,7 +35,16 @@ function App() {
           <div>Your query was submitted! Here is your data</div>
         }
 
+
       </header>
+      <DoubleChart
+        vnegative={2}
+        negative={1}
+        snegative={2}
+        spositive={5}
+        positive={5}
+        vpositive={5}
+      />
       <footer>
         Made with <FiHeart/> for HackMIT 2020. <a href="https://github.com/tchittesh/review-visualizer">View on Github</a>
       </footer>
