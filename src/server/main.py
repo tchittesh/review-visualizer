@@ -4,6 +4,7 @@ from flask_cors import CORS
 from load import load_amazon_dataset
 from sentiment_analysis import get_review_sentiments
 from keyword_extractor import get_keywords, get_aggregate_keywords
+from time_series_data import get_moving_star_avg
 
 app = Flask(__name__)
 CORS(app, resources={r"/*": {"origins": "*"}})
@@ -58,12 +59,14 @@ def get_visualization_data():
     overall_sentiment_results = get_review_sentiments(product_reviews)
     aggregate_keywords = get_aggregate_keywords(product_reviews)
     keywords = get_keywords(product_reviews)
+    time_series = get_moving_star_avg(product_reviews)
 
 
     return {
         "overall_sentiment": overall_sentiment_results,
         "aggregate_keywords": aggregate_keywords,
-        "keywords": keywords
+        "keywords": keywords,
+        "time_series": time_series
     }
 
 if __name__ == '__main__':
