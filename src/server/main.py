@@ -1,20 +1,47 @@
-from flask import Flask, request
+from flask import Flask, request, abort
 
 from load import load_amazon_dataset
 from sentiment_analysis import get_review_sentiments
-from entity_extract import get_keywords, get_aggregate_keywords
+from keyword_extractor import get_keywords, get_aggregate_keywords
 
 app = Flask(__name__)
 
-dataset = load_amazon_dataset('../../data/amazon_reviews_us_Wireless_v1_00.tsv')
+dataset = load_amazon_dataset('../../data/amazon_reviews_us_Wireless_v1_00.tsv', max_reviews = None)
+product_names = set([name.lower() for name in dataset["product_title"]])
 
 @app.route('/')
 def hello_world():
     return 'Hello, World!'
 
+@app.route('/suggestions')
+def suggest():
+    input_name = request.args.get('product_name')
+    if input_name is None:
+        abort(400)
+
+    suggestions = []
+    for product_name in product_names:
+        if input_name == product_name[:len(input_name)]:
+            suggestions.append(product_name)
+        if len(suggestions) == 5:
+            break
+
+    for product_name in product_names:
+        if input_name in product_name and input_name not in suggestions:
+            suggestions.append(product_name)
+        if len(suggestions) == 5:
+            break
+
+    return {
+        "suggestions": suggestions
+    }
+
+
 @app.route('/visualize')
 def get_visualization_data():
     input_name = request.args.get('product_name')
+    if input_name is None:
+        abort(400)
 
     product_id = None
     for i in range(len(dataset)):
