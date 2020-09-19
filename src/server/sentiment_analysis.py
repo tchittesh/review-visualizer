@@ -5,7 +5,7 @@ from nltk.sentiment.vader import SentimentIntensityAnalyzer
 sentiment_analyzer = SentimentIntensityAnalyzer()
 
 pos_neg_cutoff = 0.5
-neutral_cutoff = 0.2
+neutral_cutoff = 0.7
 
 def get_review_sentiments(product_reviews):
     counts = defaultdict(int)
