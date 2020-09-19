@@ -2,6 +2,7 @@ from flask import Flask, request
 
 from load import load_amazon_dataset
 from sentiment_analysis import get_review_sentiments
+from entity_extract import get_keywords, get_aggregate_keywords
 
 app = Flask(__name__)
 
@@ -24,10 +25,16 @@ def get_visualization_data():
         return {}
 
     product_reviews = dataset.loc[dataset["product_id"] == product_id]
+
     overall_sentiment_results = get_review_sentiments(product_reviews)
+    aggregate_keywords = get_aggregate_keywords(product_reviews)
+    keywords = get_keywords(product_reviews)
+
 
     return {
-        "overall_sentiment": overall_sentiment_results
+        "overall_sentiment": overall_sentiment_results,
+        "aggregate_keywords": aggregate_keywords,
+        "keywords": keywords
     }
 
 if __name__ == '__main__':
