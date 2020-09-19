@@ -29,8 +29,8 @@ function DoubleChart(props) {
 
     return Object.assign(data, {
       format: ".0%",
-      negative: "← More negative keywords",
-      positive: "More positive keywords →",
+      negative: "← More negative reviews",
+      positive: "More positive reviews →",
       negatives: ["Very negative", "Negative"],
       positives: ["Positive", "Very positive"]
     });

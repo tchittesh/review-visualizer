@@ -18,7 +18,6 @@ function App() {
 
   function submitForm(event) {
     event.preventDefault();
-    alert('search query submitted! ' + inputValue);
 
     // make request to the backend endpoint
     request.get({
@@ -75,6 +74,7 @@ function App() {
 
   return (
     <div className="App">
+      {!showResult &&
       <header className="App-header">
         <div className="title">Review Visualizer</div>
         <div className="subtitle">Presenting concise product review insights through data visualization.</div>
@@ -84,9 +84,16 @@ function App() {
                 onSubmit={submitForm}/>
 
       </header>
+      }
       {showResult &&
-        <div className="chart-summary">
-          {formatDoubleChart(sentiment_display, prod_name)}
+        <div>
+          <Search inputValue={inputValue}
+                  onChange={searchOnChange}
+                  onSubmit={submitForm}/>
+          <div className="summary-text">Now showing review data summary for <strong>{prod_name}</strong></div>
+          <div className="chart-summary">
+            {formatDoubleChart(sentiment_display, prod_name)}
+          </div>
         </div>
       }
       <footer>
