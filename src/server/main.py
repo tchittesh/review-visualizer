@@ -1,10 +1,12 @@
 from flask import Flask, request, abort
+from flask_cors import CORS
 
 from load import load_amazon_dataset
 from sentiment_analysis import get_review_sentiments
 from keyword_extractor import get_keywords, get_aggregate_keywords
 
 app = Flask(__name__)
+CORS(app, resources={r"/*": {"origins": "*"}})
 
 dataset = load_amazon_dataset('../../data/amazon_reviews_us_Wireless_v1_00.tsv', max_reviews = None)
 product_names = set([name.lower() for name in dataset["product_title"]])
