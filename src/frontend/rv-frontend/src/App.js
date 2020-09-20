@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import './App.css';
 import Search from './components/search-bar.js'
 import DoubleChart from './components/two-sided-chart.js';
+import WordGraph from './components/word-graph.js';
 import { FiHeart } from 'react-icons/fi'
 const request = require('request');
 
@@ -10,6 +11,7 @@ function App() {
   const [showResult, setShowResult] = useState(false);
   const [sentiment_display, set_sentiment_display] = useState({})
   const [prod_name, set_prod_name] = useState("")
+  const [word_graph, set_word_graph] = useState({})
 
   function searchOnChange(event) {
     event.preventDefault();
@@ -28,9 +30,9 @@ function App() {
       }
       body = JSON.parse(body)
       console.log(body);
-      console.log(body['overall_sentiment'])
       set_prod_name(inputValue);
-      set_sentiment_display(body['overall_sentiment'])
+      set_sentiment_display(body['overall_sentiment']);
+      set_word_graph(body['word_graph']);
 
       //setShowResult(true);
     })
@@ -47,10 +49,10 @@ function App() {
   }
 
   useEffect(() => {
-    if (!isEmpty(sentiment_display)) {
+    if (!isEmpty(sentiment_display) && !isEmpty(word_graph)) {
       setShowResult(true);
     }
-  }, [sentiment_display])
+  }, [sentiment_display, word_graph])
 
   function formatDoubleChart(body, prod_name) {
     console.log(body)
@@ -94,6 +96,7 @@ function App() {
           <div className="chart-summary">
             {formatDoubleChart(sentiment_display, prod_name)}
           </div>
+          <WordGraph graph={word_graph}/>
         </div>
       }
       <footer>

@@ -86,18 +86,6 @@ function DoubleChart(props) {
         .tickFormat(formatValue)
         .tickSizeOuter(0))
     .call(g => g.select(".domain").remove())
-    .call(g => g.append("text")
-        .attr("x", x(0) + 20)
-        .attr("y", -24)
-        .attr("fill", "currentColor")
-        .attr("text-anchor", "start")
-        .text(data.positive))
-    .call(g => g.append("text")
-        .attr("x", x(0) - 20)
-        .attr("y", -24)
-        .attr("fill", "currentColor")
-        .attr("text-anchor", "end")
-        .text(data.negative))
 
   function drawChart() {
 
