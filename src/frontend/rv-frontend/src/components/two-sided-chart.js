@@ -15,6 +15,7 @@ function DoubleChart(props) {
       {name: defaultName, category: "Negative", value: props.negative},
       //{name: defaultName, category: "Slightly negative", value: props.snegative},
       //{name: defaultName, category: "Slightly positive", value: props.spositive},
+      {name: defaultName, category: "Neutral", value: props.neutral},
       {name: defaultName, category: "Positive", value: props.positive},
       {name: defaultName, category: "Very positive", value: props.vpositive}
     ]
@@ -32,7 +33,7 @@ function DoubleChart(props) {
       negative: "← More negative reviews",
       positive: "More positive reviews →",
       negatives: ["Very negative", "Negative"],
-      positives: ["Positive", "Very positive"]
+      positives: ["Neutral", "Positive", "Very positive"]
     });
   }
   const data = getData()
@@ -67,17 +68,17 @@ function DoubleChart(props) {
 
   const color = d3.scaleOrdinal()
     .domain([].concat(data.negatives, data.positives))
-    .range(d3.schemeSpectral[data.negatives.length + data.positives.length])
+    .range(d3.schemeRdYlGn[data.negatives.length + data.positives.length])
 
   function formatValue(x) {
     const format = d3.format(data.format || "");
     return format(Math.abs(x));
   }
 
-  let yAxis = g => g
-    .call(d3.axisLeft(y).tickSizeOuter(0))
-    .call(g => g.selectAll(".tick").data(bias).attr("transform", ([name, min]) => `translate(${x(min)},${y(name) + y.bandwidth() / 2})`))
-    .call(g => g.select(".domain").attr("transform", `translate(${x(0)},0)`))
+  // let yAxis = g => g
+  //   .call(d3.axisLeft(y).tickSizeOuter(0))
+  //   .call(g => g.selectAll(".tick").data(bias).attr("transform", ([name, min]) => `translate(${x(min)},${y(name) + y.bandwidth() / 2})`))
+  //   .call(g => g.select(".domain").attr("transform", `translate(${x(0)},0)`))
 
   let xAxis = g => g
     .attr("transform", `translate(0,${margin.top})`)
@@ -106,13 +107,13 @@ function DoubleChart(props) {
         .attr("height", y.bandwidth())
       .append("title")
         .text(({key, data: [name, value]}) => `${name}
-        ${formatValue(value.get(key))} ${key}`);
+${formatValue(value.get(key))} ${key}`);
 
     svg.append("g")
       .call(xAxis);
 
-    svg.append("g")
-      .call(yAxis);
+    // svg.append("g")
+    //   .call(yAxis);
 
     return svg.node();
   }
@@ -129,7 +130,12 @@ function DoubleChart(props) {
   }, [props]);
 
   return (
-    <div ref={svg}></div>
+
+    <div id="popup">
+    <div style={{alignSelf: 'center'}} ref={svg}>
+    <span style={{top: "-30px", left: "550px", width: "250px"}}>Breakdown by sentiment<br />(hover for exact percentages)</span>
+    </div>
+    </div>
   );
 }
 

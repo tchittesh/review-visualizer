@@ -4,15 +4,25 @@ import '../css/time_series.css'
 
 
 // inspired by code here https://bl.ocks.org/d3noob/402dd382a51a4f6eea487f9a35566de0
+// https://bl.ocks.org/alandunning/cfb7dcd7951826b9eacd54f0647f48d3
 function TimeSeries(props) {
 
   // set the dimensions and margins of the graph
+
+    // let height = 400;
+    // let width = 680;
   var margin = {top: 20, right: 20, bottom: 30, left: 50},
-      width = 960 - margin.left - margin.right,
-      height = 500 - margin.top - margin.bottom;
+      width = 600 - margin.left - margin.right,
+      height = 300 - margin.top - margin.bottom;
 
   // parse the date / time
   var parseTime = d3.timeParse("%Y-%m-%d");
+
+  function getDay(d) {
+    return d.date;
+  }
+
+  var bisectDate = d3.bisector(function(d) { return getDay(d); }).left;
 
   // set the ranges
   var x = d3.scaleTime().range([0, width]);
@@ -32,6 +42,7 @@ function TimeSeries(props) {
     var svg = d3.select("#time-series-svg").append("svg")
         .attr("width", width + margin.left + margin.right)
         .attr("height", height + margin.top + margin.bottom)
+        // .attr("viewBox", [0, 0, width + margin.left + margin.right, height + margin.top + margin.bottom])
       .append("g")
         .attr("transform",
               "translate(" + margin.left + "," + margin.top + ")");
@@ -50,7 +61,8 @@ function TimeSeries(props) {
 
     // Scale the range of the data
     x.domain(d3.extent(data, function(d) { return d.date; }));
-    y.domain([0, d3.max(data, function(d) { return d.value; })]);
+    //y.domain([0, d3.max(data, function(d) { return d.value; })]);
+    y.domain([0, 5])
 
     // Add the valueline path.
     svg.append("path")
@@ -67,6 +79,52 @@ function TimeSeries(props) {
     svg.append("g")
         .call(d3.axisLeft(y));
 
+    let focus = svg.append("g")
+        .attr("class", "focus")
+        .style("display", "none");
+
+    focus.append("line")
+        .attr("class", "x-hover-line hover-line")
+        .attr("y1", 0)
+        .attr("y2", height);
+
+    focus.append("line")
+        .attr("class", "y-hover-line hover-line")
+        .attr("x1", width)
+        .attr("x2", width);
+
+    focus.append("circle")
+        .attr("r", 7.5);
+
+    focus.append("text")
+        .attr("class", "text-desc")
+        .attr("x", 15)
+        .attr("dy", ".31em");
+
+
+    svg.append("rect")
+        //.attr("transform", "translate(" + margin.left + "," + margin.top + ")")
+        .attr("class", "overlay")
+        .attr("width", width)
+        .attr("height", height)
+        .on("mouseover", function() { focus.style("display", null); })
+        .on("mouseout", function() { focus.style("display", "none"); })
+        .on("mousemove", mousemove);
+
+
+    function mousemove(event) {
+      var x0 = x.invert(d3.pointer(event)[0]),
+          i = bisectDate(data, x0, 1),
+          d0 = data[i - 1],
+          d1 = data[i],
+          //d = x0 - d0.year > d1.year - x0 ? d1 : d0;
+          d = x0 - getDay(d0) > getDay(d1) - x0 ? d1 : d0
+      focus.attr("transform", "translate(" + x(d.date) + "," + y(d.value) + ")");
+      focus.select("text").text(function() { return `${d.date.toString().substr(0,15)}: ${d.value.toFixed(2)}`; });
+      focus.select(".x-hover-line").attr("y2", height - y(d.value));
+      focus.select(".y-hover-line").attr("x2", width + width);
+    }
+
     return () => {
       // clear out the element
       document.getElementById('time-series-svg').innerHTML = "";
@@ -75,8 +133,10 @@ function TimeSeries(props) {
   }, [props]);
 
   return (
-    <div className="time-series-svg-wrapper">
-      <div id="time-series-svg"></div>
+    <div className="time-series-svg-wrapper" id="popup">
+      <div id="time-series-svg" style={{gridArea: '2/1/2/1'}}>
+      <span>Average rating over time</span>
+      </div>
     </div>
   )
 }

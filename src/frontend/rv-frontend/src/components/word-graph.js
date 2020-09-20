@@ -1,5 +1,6 @@
 import React, { useEffect, useRef } from 'react';
 import * as d3 from 'd3';
+import '../css/word-graph.css';
 
 // based on demo here: https://observablehq.com/@pjayathissa/disjoint-labeled-force-directed-graph
 function WordGraph(props) {
@@ -29,16 +30,29 @@ function WordGraph(props) {
   }));
 
   let links = [];
+  // use top (2 * keywords.length) edges
+  let probabilities = [];
   for (let keyword1 of keywords) {
     for (let keyword2 of keywords) {
       if (keyword1 === keyword2) {
         continue;
       }
-      if (keyword_pair_probabilities[keyword1][keyword2] > 1 / keywords.length) {
+      probabilities.push(keyword_pair_probabilities[keyword1][keyword2]);
+    }
+  }
+  probabilities.sort((a, b) => b-a);
+  let threshold = -1;
+  if (2*keywords.length < probabilities.length) threshold = probabilities[2*keywords.length];
+  for (let keyword1 of keywords) {
+    for (let keyword2 of keywords) {
+      if (keyword1 === keyword2) {
+        continue;
+      }
+      if (keyword_pair_probabilities[keyword1][keyword2] > threshold) {
         links.push({
           source: keyword1,
           target: keyword2,
-          value: 5 * keyword_pair_probabilities[keyword1][keyword2],
+          value: 2,
         });
       }
     }
@@ -49,8 +63,8 @@ function WordGraph(props) {
     "links": links,
   }];
 
-  let height = 400;
-  let width = 680;
+  let height = 450;
+  let width = 600;
 
   let color = d => d3.interpolateRdYlGn((d.valence + 1)/2);
 
@@ -155,7 +169,11 @@ function WordGraph(props) {
   }, [props]);
 
   return (
-    <div ref={svg}></div>
+    <div id="popup">
+    <div style={{gridArea: '2/1/2/1'}} ref={svg}>
+    <span style={{top: "-15px", left: "200px"}}>Keyphrase Graph<br />Edges connect keyphrases commonly appearing together.</span>
+    </div>
+    </div>
   )
 }
 

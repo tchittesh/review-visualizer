@@ -1,11 +1,11 @@
 from collections import defaultdict
+import math
 
 from fuzzywuzzy import fuzz
 from rake_nltk import Metric, Rake
 
 
-
-r = Rake(min_length=2, max_length=2, ranking_metric=Metric.WORD_DEGREE)
+r = Rake(min_length=1, max_length=3, ranking_metric=Metric.WORD_DEGREE)
 
 
 def get_keywords(product_reviews):
@@ -17,64 +17,67 @@ def get_keywords(product_reviews):
     return results
 
 
-def get_aggregate_keywords(product_reviews, max_keywords=20):
+def get_aggregate_keywords(product_reviews, max_keywords = 20, improve_quality = True):
     strings = []
     for i in range(len(product_reviews)):
         product_review = product_reviews.iloc[i]
         strings.append(product_review["review_headline"])
         strings.append(product_review["review_body"])
     r.extract_keywords_from_sentences(strings)
-    result = r.get_ranked_phrases()[:max_keywords]
-    return result
+    if improve_quality:
+        top_2n_keywords = r.get_ranked_phrases()[:2*max_keywords]
+        # get pairwise fuzzy distances
+        G = {}
+        for i in range(len(top_2n_keywords)):
+            for j in range(len(top_2n_keywords)):
+                if i == j:
+                    continue
+                kw1 = top_2n_keywords[i]
+                kw2 = top_2n_keywords[j]
+                p1, p2 = (kw2, kw1) if len(kw1) < len(kw2) else (kw2, kw1)
+                G[(i, j)] = fuzz.ratio(p1, p2)
+        scores = [sum(G[(i, j)] for j in range(len(top_2n_keywords)) if i != j) for i in range(len(top_2n_keywords))]
+        # choose lowest n similarity scores
+        top_n_indices = sorted(list(range(len(top_2n_keywords))), key = lambda i: scores[i])[:max_keywords]
+        return [top_2n_keywords[i] for i in top_n_indices]
+    else:
+        return r.get_ranked_phrases()[:max_keywords]
 
 
-def get_pros_and_cons(product_reviews, count=3, fuzz_cutoff=0.8):
+def get_pros_and_cons(product_reviews, count = 3):
     negative_reviews = product_reviews.loc[product_reviews["star_rating"].isin(["1", "2"])]
     positive_reviews = product_reviews.loc[product_reviews["star_rating"].isin(["4", "5"])]
 
     if len(negative_reviews) == 0:
         cons = ["_"] * count
     else:
-        cons = get_aggregate_keywords(negative_reviews)
+        cons = get_aggregate_keywords(negative_reviews, max_keywords = 3)
 
     if len(positive_reviews) == 0:
         pros = ["_"] * count
     else:
-        pros = get_aggregate_keywords(positive_reviews)
-
-    pro_scores = []
-    for pro in pros:
-        neg_fuzz = sum([fuzz.ratio(pro, con_review) for con_review in negative_reviews]) / len(negative_reviews)
-        pos_fuzz = sum([fuzz.ratio(pro, pro_review) for pro_review in positive_reviews]) / len(positive_reviews)
-        pro_scores.append((pro, (pos_fuzz + 1) / (neg_fuzz + 1)))
-    con_scores = []
-    for con in cons:
-        neg_fuzz = sum([fuzz.ratio(con, con_review) for con_review in negative_reviews]) / len(negative_reviews)
-        pos_fuzz = sum([fuzz.ratio(con, pro_review) for pro_review in positive_reviews]) / len(positive_reviews)
-        con_scores.append((con, (neg_fuzz + 1) / (pos_fuzz + 1)))
-
-    pro_scores.sort(key=lambda x: x[1], reverse=True)
-    con_scores.sort(key=lambda x: x[1], reverse=True)
-
-    print('Pros')
-    print(pro_scores[:10])
-    print('Cons')
-    print(con_scores[:10])
-    new_pros = [pro_score[0] for pro_score in pro_scores]
-    new_cons = [con_score[0] for con_score in con_scores]
+        pros = get_aggregate_keywords(positive_reviews, max_keywords = 3)
 
     return {
-        "cons": new_cons[:count],
-        "pros": new_pros[:count],
+        "cons": cons,
+        "pros": pros,
     }
 
 
 class KeywordReviewGraph():
 
-    def __init__(self, product_reviews, max_keywords = 20, min_match_score = 50):
-        self.keywords = get_aggregate_keywords(product_reviews, max_keywords = max_keywords)
+    def __init__(self, product_reviews, max_keywords = 20):
+        product_reviews_neg = product_reviews.loc[product_reviews["star_rating"].isin(["1", "2"])]
+        self.neg_review_count = len(product_reviews_neg)
+        product_reviews_pos = product_reviews.loc[product_reviews["star_rating"].isin(["3", "4", "5"])]
+        self.keywords = []
+        for product_reviews_type in [product_reviews_neg, product_reviews_pos]:
+            if len(product_reviews_type) == 0:
+                continue
+            num_keywords = int(math.ceil(len(product_reviews_type) / len(product_reviews) * max_keywords)) + 1
+            self.keywords.extend(get_aggregate_keywords(product_reviews_type, max_keywords = num_keywords))
+        self.keywords = self.keywords[:max_keywords]
         self.product_reviews = product_reviews
-        self.min_match_score = min_match_score
 
         self.graph = defaultdict(list) # maps keywords to (review number, match score) and review number to (keyword, match score)
         self.keyword_review_pair_to_match_score = {}
@@ -86,6 +89,14 @@ class KeywordReviewGraph():
                 self.graph[keyword].append([i, match_score])
                 self.graph[i].append([keyword, match_score])
                 self.keyword_review_pair_to_match_score[(keyword, i)] = match_score
+
+        count, total = 0, 0
+        for keyword in self.keywords:
+            for i in range(len(self.product_reviews)):
+                count += 1
+                total += self.keyword_review_pair_to_match_score[(keyword, i)]
+        avg_match_score = total / count
+        self.min_match_score = 4/3 * avg_match_score
 
     def compute_keyword_frequencies(self):
         keyword_frequencies = {}
@@ -106,6 +117,12 @@ class KeywordReviewGraph():
             total_valence = 0
             for i, weight in self.graph[keyword]:
                 product_review = self.product_reviews.iloc[i]
+                if weight < self.min_match_score:
+                    weight = weight / 20
+                else:
+                    weight = weight * 20
+                if int(product_review["star_rating"]) < 3:
+                    weight *= len(self.product_reviews) / self.neg_review_count
                 total_weight += weight
                 total_valence += star_to_valence[product_review["star_rating"]] * weight
             if total_weight == 0:
