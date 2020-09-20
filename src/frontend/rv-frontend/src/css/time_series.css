@@ -1,0 +1,16 @@
+.line {
+  fill: none;
+  stroke: steelblue;
+  stroke-width: 2px;
+}
+
+#time-series-svg {
+  margin-left: auto;
+  margin-right: auto;
+  align-items: center;
+
+}
+.time-series-svg-wrapper {
+  width:100%;
+  text-align:center;
+}
