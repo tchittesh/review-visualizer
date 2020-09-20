@@ -1,17 +1,16 @@
-body {
-        margin: 0;
-        font-size: 11px;
-      }
+.line {
+  fill: none;
+  stroke: steelblue;
+  stroke-width: 2px;
+}
 
-      .axis path, .axis line {
-        fill: none;
-        stroke: black;
-        shape-rendering: crispEdges;  /* Round any decimal pixels so it'll render nicely */
-      }
+#time-series-svg {
+  margin-left: auto;
+  margin-right: auto;
+  align-items: center;
 
-      /*
-      //Can use CSS3 Transitions, but not for everything (e.g. change radius size)
-      circle:hover{
-        fill: green;
-      }
-      */
+}
+.time-series-svg-wrapper {
+  width:100%;
+  text-align:center;
+}
