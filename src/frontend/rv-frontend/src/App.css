@@ -50,3 +50,62 @@ a {
   padding-top:24px;
   padding-bottom:24px;
 }
+
+/* loading animation inspired by https://codepen.io/timming-au/pen/poyKPwj */
+
+@keyframes loading{
+  0%{
+    stroke-dashoffset: 150.79632;
+  }
+  100%{
+    stroke-dashoffset: -150.79632;
+  }
+}
+
+@keyframes rotate{
+  from{
+    transform: rotate(0deg);
+  }
+  to{
+    transform: rotate(360deg);
+  }
+}
+
+@keyframes rotateBase{
+  from{
+    transform: rotate(0deg);
+  }
+  to{
+    transform: rotate(360deg);
+  }
+}
+
+.loading-container{
+  width:200px;
+  height:200px;
+  position:absolute;
+  margin: -100px 0px 0px -100px;
+  left:50%;
+  top:50%;
+  display:flex;
+  align-items: center;
+  justify-content: center;
+  flex-direction:column;
+}
+.loading-rotater{
+  display:flex;
+  align-items: center;
+  justify-content: center;
+  flex-direction:column;
+  animation: rotateBase 20s infinite linear;
+}
+.loading-svg{
+  animation: loading 2s infinite ease-in-out, rotate 2s infinite ease-in-out;
+  stroke-dasharray: calc(48 * 3.14159);
+}
+
+
+
+.loading-text{
+  font-size:20px;
+}

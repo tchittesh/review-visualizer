@@ -7,8 +7,6 @@ import '../css/time_series.css'
 // https://bl.ocks.org/alandunning/cfb7dcd7951826b9eacd54f0647f48d3
 function TimeSeries(props) {
 
-  // TODO: hover gives title of chart, num stars and date
-
   // set the dimensions and margins of the graph
   var margin = {top: 20, right: 20, bottom: 30, left: 50},
       width = 960 - margin.left - margin.right,

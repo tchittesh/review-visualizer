@@ -10,6 +10,7 @@ const request = require('request');
 function App() {
   const [inputValue, setInputValue] = useState("");
   const [showResult, setShowResult] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
   const [sentiment_display, set_sentiment_display] = useState({})
   const [time_series_data, set_time_series_data] = useState([])
   const [prod_name, set_prod_name] = useState("")
@@ -23,14 +24,15 @@ function App() {
   function submitForm(event) {
     event.preventDefault();
 
-    console.log('request submitted')
-
+    setIsLoading(true);
     // make request to the backend endpoint
     request.get({
       url: 'http://127.0.0.1:5000/visualize?product_name=' + inputValue
     }, function (err, httpResponse, body) {
       if (err) {
         alert(err);
+        setIsLoading(false);
+        setShowResult(false);
         return
       }
       body = JSON.parse(body)
@@ -56,6 +58,7 @@ function App() {
   useEffect(() => {
     if (!isEmpty(sentiment_display) && !isEmpty(word_graph)) {
       setShowResult(true);
+      setIsLoading(false);
     }
   }, [sentiment_display, word_graph])
 
@@ -73,13 +76,26 @@ function App() {
     )
   }
 
+  let dots = document.getElementsByClassName('loading-dot');
+  function startLoad(){
+    Array.prototype.forEach.call(dots, function(el,index){
+      dots[index].style.display = "none";
+      setTimeout(function(){
+        dots[index].style.display = "inline-block";
+      },1000 + (1000 * index))
+    })
+  }
+  startLoad();
+  setInterval(startLoad,4000)
+
+
   // TODO: loading animation
   // TODO: change two sided chart colors
   // TODO: hover for information
 
   return (
     <div className="App">
-      {!showResult &&
+      {!showResult && !isLoading &&
       <header className="App-header">
         <div className="title">Review Visualizer</div>
         <div className="subtitle">Presenting concise product review insights through data visualization.</div>
@@ -90,7 +106,17 @@ function App() {
 
       </header>
       }
-      {showResult &&
+      {isLoading &&
+        <div className='loading-container'>
+          <div className='loading-rotater'>
+            <svg className="loading-svg" width="50" height="50" fill="transparent">
+              <circle cx="25" cy="25" r="24" stroke="black"></circle>
+            </svg>
+          </div>
+          <p className="loading-text">loading...</p>
+        </div>
+      }
+      {showResult && !isLoading &&
         <div>
           <Search inputValue={inputValue}
                   onChange={searchOnChange}
