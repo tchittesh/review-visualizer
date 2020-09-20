@@ -4,7 +4,8 @@ from fuzzywuzzy import fuzz
 from rake_nltk import Metric, Rake
 
 
-r = Rake(min_length=1, max_length=3, ranking_metric=Metric.WORD_DEGREE)
+
+r = Rake(min_length=2, max_length=2, ranking_metric=Metric.WORD_DEGREE)
 
 
 def get_keywords(product_reviews):
@@ -16,7 +17,7 @@ def get_keywords(product_reviews):
     return results
 
 
-def get_aggregate_keywords(product_reviews, max_keywords = 20):
+def get_aggregate_keywords(product_reviews, max_keywords=20):
     strings = []
     for i in range(len(product_reviews)):
         product_review = product_reviews.iloc[i]
@@ -27,23 +28,44 @@ def get_aggregate_keywords(product_reviews, max_keywords = 20):
     return result
 
 
-def get_pros_and_cons(product_reviews, count = 3):
+def get_pros_and_cons(product_reviews, count=3, fuzz_cutoff=0.8):
     negative_reviews = product_reviews.loc[product_reviews["star_rating"].isin(["1", "2"])]
     positive_reviews = product_reviews.loc[product_reviews["star_rating"].isin(["4", "5"])]
 
     if len(negative_reviews) == 0:
         cons = ["_"] * count
     else:
-        cons = get_aggregate_keywords(negative_reviews, max_keywords = 3)
+        cons = get_aggregate_keywords(negative_reviews)
 
     if len(positive_reviews) == 0:
         pros = ["_"] * count
     else:
-        pros = get_aggregate_keywords(positive_reviews, max_keywords = 3)
+        pros = get_aggregate_keywords(positive_reviews)
+
+    pro_scores = []
+    for pro in pros:
+        neg_fuzz = sum([fuzz.ratio(pro, con_review) for con_review in negative_reviews]) / len(negative_reviews)
+        pos_fuzz = sum([fuzz.ratio(pro, pro_review) for pro_review in positive_reviews]) / len(positive_reviews)
+        pro_scores.append((pro, (pos_fuzz + 1) / (neg_fuzz + 1)))
+    con_scores = []
+    for con in cons:
+        neg_fuzz = sum([fuzz.ratio(con, con_review) for con_review in negative_reviews]) / len(negative_reviews)
+        pos_fuzz = sum([fuzz.ratio(con, pro_review) for pro_review in positive_reviews]) / len(positive_reviews)
+        con_scores.append((con, (neg_fuzz + 1) / (pos_fuzz + 1)))
+
+    pro_scores.sort(key=lambda x: x[1], reverse=True)
+    con_scores.sort(key=lambda x: x[1], reverse=True)
+
+    print('Pros')
+    print(pro_scores[:10])
+    print('Cons')
+    print(con_scores[:10])
+    new_pros = [pro_score[0] for pro_score in pro_scores]
+    new_cons = [con_score[0] for con_score in con_scores]
 
     return {
-        "cons": cons,
-        "pros": pros,
+        "cons": new_cons[:count],
+        "pros": new_pros[:count],
     }
 
 
