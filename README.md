@@ -1,7 +1,7 @@
 # review-visualizer
 
-Made for HackMIT 2020. A tool that presents visualizations of aggregate Amazon product
-review data to provide quick at-a-glance insights with more relevant detail than simple star averages.
+Made for HackMIT 2020. A tool that presents visualizations of aggregate
+review data for individual Amazon products to provide quick at-a-glance insights with more relevant detail than simple star averages.
 
 ### Features
 * Uses sentiment analysis to give more detail on review comment contents

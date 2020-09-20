@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import './App.css';
 import Search from './components/search-bar.js'
 import DoubleChart from './components/two-sided-chart.js';
+import TimeSeries from './components/time_series.js';
 import { FiHeart } from 'react-icons/fi'
 const request = require('request');
 
@@ -96,6 +97,10 @@ function App() {
           </div>
         </div>
       }
+      <TimeSeries input={[
+        {date_time: '2015-08-28', total_km: 28},
+        {date_time: '2015-08-22', total_km: 13}
+      ]}/>
       <footer>
         Made with <FiHeart/> for HackMIT 2020. <a href="https://github.com/tchittesh/review-visualizer">View on Github</a>
       </footer>
