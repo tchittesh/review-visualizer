@@ -1,17 +1,3 @@
-from load import load_amazon_dataset
-
-dataset = load_amazon_dataset('../../data/amazon_reviews_us_Wireless_v1_00.tsv', max_reviews = None)
-input_name = "LG G4 Case Hard Transparent Slim Clear Cover for LG G4"
-
-
-product_id = None
-for i in range(len(dataset)):
-    if input_name in dataset["product_title"][i]:
-        product_id = dataset["product_id"][i]
-        break
-
-product_reviews = dataset.loc[dataset["product_id"] == product_id]
-
 
 # return a time series, where value at each time is an average of star ratings up to that point,
 # but older reviews are weighted less than recent ones
@@ -35,15 +21,16 @@ def get_moving_star_avg(product_reviews):
             scores = [int(star_rating)]
             last_date = review_date
     avg_rating = sum(scores) / len(scores)
-    group_by_date.append((last_date, avg_rating))
+    group_by_date.append((last_date, avg_rating, len(scores)))
 
     res = []
+    cumulative_sum = 0
+    cumulative_ct = 0
+    for i in range(len(group_by_date)):
+        # do some sort of weighting here
+        (d, suml, ct) = group_by_date[i]
+        cumulative_ct += ct
+        cumulative_sum += suml
+        res.append({'date': d, 'value': cumulative_sum / cumulative_ct})
 
-    # do some sort of weighting here
-
-    return group_by_date
-
-
-
-
-print(get_decaying_star_avg_over_time(product_reviews))
+    return res
