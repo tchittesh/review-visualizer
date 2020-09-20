@@ -59,13 +59,13 @@ def get_visualization_data():
     overall_sentiment_results = get_review_sentiments(product_reviews)
     graph = KeywordReviewGraph(product_reviews)
     word_graph = graph.get_word_graph()
-    # time_series = get_moving_star_avg(product_reviews)
+    time_series = get_moving_star_avg(product_reviews)
 
 
     return {
         "overall_sentiment": overall_sentiment_results,
         "word_graph": word_graph,
-        # "time_series": time_series,
+        "time_series": time_series,
     }
 
 if __name__ == '__main__':

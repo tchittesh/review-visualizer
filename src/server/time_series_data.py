@@ -26,7 +26,7 @@ def get_moving_star_avg(product_reviews):
     res = []
     cumulative_sum = 0
     cumulative_ct = 0
-    for i in range(len(group_by_date)):
+    for i in range(len(group_by_date)-1, -1, -1):
         # do some sort of weighting here
         (d, suml, ct) = group_by_date[i]
         cumulative_ct += ct
