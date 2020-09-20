@@ -1,6 +1,6 @@
 .line {
   fill: none;
-  stroke: steelblue;
+  stroke: gray;
   stroke-width: 2px;
 }
 
@@ -13,4 +13,25 @@
 .time-series-svg-wrapper {
   width:100%;
   text-align:center;
+}
+
+.overlay {
+  fill: none;
+  pointer-events: all;
+}
+
+.focus circle {
+  fill: #F1F3F3;
+  stroke: gray;
+  stroke-width: 5px;
+}
+
+.hover-line {
+  stroke: gray;
+  stroke-width: 2px;
+  stroke-dasharray: 3,3;
+}
+
+.text-desc {
+  
 }
