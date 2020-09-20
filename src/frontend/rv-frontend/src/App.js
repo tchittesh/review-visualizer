@@ -4,6 +4,7 @@ import Search from './components/search-bar.js'
 import DoubleChart from './components/two-sided-chart.js';
 import TimeSeries from './components/time_series.js';
 import WordGraph from './components/word-graph.js';
+import ProsConsTable from './components/pros-cons-table.js';
 import { FiHeart } from 'react-icons/fi'
 const request = require('request');
 
@@ -14,6 +15,7 @@ function App() {
   const [time_series_data, set_time_series_data] = useState([])
   const [prod_name, set_prod_name] = useState("")
   const [word_graph, set_word_graph] = useState({})
+  const [pros_cons, set_pros_cons] = useState({})
 
   function searchOnChange(event) {
     event.preventDefault();
@@ -35,10 +37,11 @@ function App() {
       }
       body = JSON.parse(body)
       console.log(body);
-      set_prod_name(inputValue);
       set_time_series_data(body['time_series']);
-      set_sentiment_display(body['overall_sentiment'])
+      set_prod_name(body['product_name']);
+      set_sentiment_display(body['overall_sentiment']);
       set_word_graph(body['word_graph']);
+      set_pros_cons(body['pros_and_cons']);
 
     })
 
@@ -54,10 +57,10 @@ function App() {
   }
 
   useEffect(() => {
-    if (!isEmpty(sentiment_display) && !isEmpty(word_graph)) {
+    if (!isEmpty(sentiment_display) && !isEmpty(word_graph) && !isEmpty(pros_cons)) {
       setShowResult(true);
     }
-  }, [sentiment_display, word_graph])
+  }, [sentiment_display, word_graph, pros_cons])
 
   function formatDoubleChart(body, prod_name) {
     if (!body) {
@@ -101,6 +104,7 @@ function App() {
             <TimeSeries input={time_series_data}/>
           </div>
           <WordGraph graph={word_graph}/>
+          <ProsConsTable pros={pros_cons["pros"]} cons={pros_cons["cons"]}/>
         </div>
       }
 
