@@ -4,7 +4,7 @@ from flask_cors import CORS
 from load import load_amazon_dataset
 from sentiment_analysis import get_review_sentiments
 from time_series_data import get_moving_star_avg
-from keyword_extractor import KeywordReviewGraph
+from keyword_extractor import KeywordReviewGraph, get_pros_and_cons
 
 app = Flask(__name__)
 CORS(app, resources={r"/*": {"origins": "*"}})
@@ -46,10 +46,11 @@ def get_visualization_data():
     if input_name is None:
         abort(400)
 
-    product_id = None
+    product_id, product_name = None, None
     for i in range(len(dataset)):
         if input_name in dataset["product_title"][i]:
             product_id = dataset["product_id"][i]
+            product_name = dataset["product_title"][i]
             break
     if product_id is None:
         abort(400)
@@ -59,13 +60,16 @@ def get_visualization_data():
     overall_sentiment_results = get_review_sentiments(product_reviews)
     graph = KeywordReviewGraph(product_reviews)
     word_graph = graph.get_word_graph()
-    # time_series = get_moving_star_avg(product_reviews)
+    pros_and_cons = get_pros_and_cons(product_reviews)
+    time_series = get_moving_star_avg(product_reviews)
 
 
     return {
         "overall_sentiment": overall_sentiment_results,
         "word_graph": word_graph,
-        # "time_series": time_series,
+        "pros_and_cons": pros_and_cons,
+        "product_name": product_name,
+        "time_series": time_series,
     }
 
 if __name__ == '__main__':
