@@ -70,12 +70,14 @@ function App() {
       return
     }
     return (
+      <div className="double-chart">
       <DoubleChart vnegative={body["very negative"] || 0}
                    negative={body["negative"] || 0}
                    positive={body["positive"] || 0}
                    vpositive={body["very positive"] || 0}
                    name={prod_name}
       />
+      </div>
     )
   }
 
@@ -91,8 +93,7 @@ function App() {
   startLoad();
   setInterval(startLoad,4000)
 
-
-  // TODO: loading animation
+  // TODO: fix time series algorithm
   // TODO: change two sided chart colors
   // TODO: hover for information
 
@@ -126,11 +127,13 @@ function App() {
                   onSubmit={submitForm}/>
           <div className="summary-text">Now showing review data summary for <strong>{prod_name}</strong></div>
           <div className="chart-summary">
+
             {formatDoubleChart(sentiment_display, prod_name)}
+            <ProsConsTable pros={pros_cons["pros"]} cons={pros_cons["cons"]}/>
+            <WordGraph graph={word_graph}/>
             <TimeSeries input={time_series_data}/>
           </div>
-          <WordGraph graph={word_graph}/>
-          <ProsConsTable pros={pros_cons["pros"]} cons={pros_cons["cons"]}/>
+
         </div>
       }
 

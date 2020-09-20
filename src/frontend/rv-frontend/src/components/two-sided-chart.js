@@ -67,7 +67,7 @@ function DoubleChart(props) {
 
   const color = d3.scaleOrdinal()
     .domain([].concat(data.negatives, data.positives))
-    .range(d3.schemeSpectral[data.negatives.length + data.positives.length])
+    .range(d3.schemeRdYlGn[data.negatives.length + data.positives.length])
 
   function formatValue(x) {
     const format = d3.format(data.format || "");
@@ -129,7 +129,7 @@ function DoubleChart(props) {
   }, [props]);
 
   return (
-    <div ref={svg}></div>
+    <div style={{alignSelf: 'center'}} ref={svg}></div>
   );
 }
 

@@ -168,7 +168,7 @@ function WordGraph(props) {
   }, [props]);
 
   return (
-    <div ref={svg}></div>
+    <div style={{gridArea: '2/1/2/1'}} ref={svg}></div>
   )
 }
 

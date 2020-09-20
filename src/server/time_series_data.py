@@ -30,7 +30,7 @@ def get_moving_star_avg(product_reviews):
         # do some sort of weighting here
         (d, suml, ct) = group_by_date[i]
         cumulative_ct += ct
-        cumulative_sum += suml
+        cumulative_sum += suml * ct
         res.append({'date': d, 'value': cumulative_sum / cumulative_ct})
 
     return res
