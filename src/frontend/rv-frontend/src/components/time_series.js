@@ -19,7 +19,11 @@ function TimeSeries(props) {
   var parseTime = d3.timeParse("%Y-%m-%d");
 
   function getDay(d) {
-    return d.date;
+    if (d !== undefined && d.hasOwnProperty('date')) {
+      return d.date;
+    } else {
+      return 0;
+    }
   }
 
   var bisectDate = d3.bisector(function(d) { return getDay(d); }).left;
@@ -119,6 +123,9 @@ function TimeSeries(props) {
           d1 = data[i],
           //d = x0 - d0.year > d1.year - x0 ? d1 : d0;
           d = x0 - getDay(d0) > getDay(d1) - x0 ? d1 : d0
+      if (d0 == undefined || d1 == undefined) {
+        return; // prevent errors accessing date
+      }
       focus.attr("transform", "translate(" + x(d.date) + "," + y(d.value) + ")");
       focus.select("text").text(function() { return `${d.date.toString().substr(0,15)}: ${d.value.toFixed(2)}`; });
       focus.select(".x-hover-line").attr("y2", height - y(d.value));
