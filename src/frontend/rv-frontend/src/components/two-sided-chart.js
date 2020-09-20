@@ -4,12 +4,12 @@ import * as d3 from 'd3';
 // diverging chart based on demo here: https://observablehq.com/@d3/diverging-stacked-bar-chart
 function DoubleChart(props) {
 
-  const width = 700
+  const width = 800
 
   function getData() {
 
 
-    const defaultName = "Product"
+    const defaultName = props.name
     let data = [
       {name: defaultName, category: "Very negative", value: props.vnegative},
       {name: defaultName, category: "Negative", value: props.negative},
@@ -29,8 +29,8 @@ function DoubleChart(props) {
 
     return Object.assign(data, {
       format: ".0%",
-      negative: "← More negative keywords",
-      positive: "More positive keywords →",
+      negative: "← More negative reviews",
+      positive: "More positive reviews →",
       negatives: ["Very negative", "Negative"],
       positives: ["Positive", "Very positive"]
     });
@@ -135,7 +135,10 @@ function DoubleChart(props) {
     if (svg.current) {
       svg.current.appendChild(chart);
     }
-  });
+    return () => {
+      svg.current.removeChild(chart);
+    }
+  }, [props]);
 
   return (
     <div ref={svg}></div>

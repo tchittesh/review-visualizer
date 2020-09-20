@@ -3,4 +3,9 @@
   background-color: transparent;
   border: none;
   color: gray;
+  width: auto;
+}
+.searchbar-wrapper {
+  padding-top: 24px;
+  padding-left: 24px;
 }
