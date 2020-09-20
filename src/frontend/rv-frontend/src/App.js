@@ -40,7 +40,9 @@ function App() {
       body = JSON.parse(body)
       console.log(body);
       set_time_series_data(body['time_series']);
-      set_prod_name(body['product_name']);
+      let product_name = body['product_name']
+      if (product_name.length > 30) product_name = product_name.slice(0, 30) + '...';
+      set_prod_name(product_name);
       set_sentiment_display(body['overall_sentiment']);
       set_word_graph(body['word_graph']);
       set_pros_cons(body['pros_and_cons']);
@@ -73,6 +75,7 @@ function App() {
       <div className="double-chart">
       <DoubleChart vnegative={body["very negative"] || 0}
                    negative={body["negative"] || 0}
+                   neutral={body["neutral"] || 0}
                    positive={body["positive"] || 0}
                    vpositive={body["very positive"] || 0}
                    name={prod_name}
@@ -97,11 +100,14 @@ function App() {
   // TODO: change two sided chart colors
   // TODO: hover for information
 
+
+
   return (
     <div className="App">
       {!showResult && !isLoading &&
       <header className="App-header">
         <div className="title">Review Visualizer</div>
+        <br/>
         <div className="subtitle">Presenting concise product review insights through data visualization.</div>
         <br/>
         <Search inputValue={inputValue}
@@ -122,10 +128,20 @@ function App() {
       }
       {showResult && !isLoading &&
         <div>
-          <Search inputValue={inputValue}
-                  onChange={searchOnChange}
-                  onSubmit={submitForm}/>
-          <div className="summary-text">Now showing review data summary for <strong>{prod_name}</strong></div>
+          <div class="flex-container">
+            <div>
+              <Search inputValue={inputValue}
+                      onChange={searchOnChange}
+                      onSubmit={submitForm}/>
+            </div>
+            <div>
+              <div className="summary-text">Visualizing reviews for <strong>{prod_name}</strong></div>
+            </div>
+          </div>
+
+          <hr/>
+
+
           <div className="chart-summary">
 
             {formatDoubleChart(sentiment_display, prod_name)}

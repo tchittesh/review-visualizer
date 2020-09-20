@@ -1,4 +1,5 @@
 from collections import defaultdict
+import math
 
 from fuzzywuzzy import fuzz
 from rake_nltk import Metric, Rake
@@ -66,7 +67,16 @@ def get_pros_and_cons(product_reviews, count = 3):
 class KeywordReviewGraph():
 
     def __init__(self, product_reviews, max_keywords = 20):
-        self.keywords = get_aggregate_keywords(product_reviews, max_keywords = max_keywords)
+        product_reviews_neg = product_reviews.loc[product_reviews["star_rating"].isin(["1", "2"])]
+        self.neg_review_count = len(product_reviews_neg)
+        product_reviews_pos = product_reviews.loc[product_reviews["star_rating"].isin(["3", "4", "5"])]
+        self.keywords = []
+        for product_reviews_type in [product_reviews_neg, product_reviews_pos]:
+            if len(product_reviews_type) == 0:
+                continue
+            num_keywords = int(math.ceil(len(product_reviews_type) / len(product_reviews) * max_keywords)) + 1
+            self.keywords.extend(get_aggregate_keywords(product_reviews_type, max_keywords = num_keywords))
+        self.keywords = self.keywords[:max_keywords]
         self.product_reviews = product_reviews
 
         self.graph = defaultdict(list) # maps keywords to (review number, match score) and review number to (keyword, match score)
@@ -107,6 +117,12 @@ class KeywordReviewGraph():
             total_valence = 0
             for i, weight in self.graph[keyword]:
                 product_review = self.product_reviews.iloc[i]
+                if weight < self.min_match_score:
+                    weight = weight / 20
+                else:
+                    weight = weight * 20
+                if int(product_review["star_rating"]) < 3:
+                    weight *= len(self.product_reviews) / self.neg_review_count
                 total_weight += weight
                 total_valence += star_to_valence[product_review["star_rating"]] * weight
             if total_weight == 0:

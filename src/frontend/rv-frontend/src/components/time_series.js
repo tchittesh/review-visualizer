@@ -8,22 +8,18 @@ import '../css/time_series.css'
 function TimeSeries(props) {
 
   // set the dimensions and margins of the graph
-  var margin = {top: 20, right: 20, bottom: 30, left: 50},
-      //width = 960 - margin.left - margin.right,
-      //height = 500 - margin.top - margin.bottom;
-      width = 800 - margin.left - margin.right,
-      height = 400 - margin.top - margin.bottom;
 
+    // let height = 400;
+    // let width = 680;
+  var margin = {top: 20, right: 20, bottom: 30, left: 50},
+      width = 600 - margin.left - margin.right,
+      height = 300 - margin.top - margin.bottom;
 
   // parse the date / time
   var parseTime = d3.timeParse("%Y-%m-%d");
 
   function getDay(d) {
-    if (d) {
-      return d.date;
-    } else {
-      return 0;
-    }
+    return d.date;
   }
 
   var bisectDate = d3.bisector(function(d) { return getDay(d); }).left;
@@ -46,6 +42,7 @@ function TimeSeries(props) {
     var svg = d3.select("#time-series-svg").append("svg")
         .attr("width", width + margin.left + margin.right)
         .attr("height", height + margin.top + margin.bottom)
+        // .attr("viewBox", [0, 0, width + margin.left + margin.right, height + margin.top + margin.bottom])
       .append("g")
         .attr("transform",
               "translate(" + margin.left + "," + margin.top + ")");
@@ -123,7 +120,7 @@ function TimeSeries(props) {
           //d = x0 - d0.year > d1.year - x0 ? d1 : d0;
           d = x0 - getDay(d0) > getDay(d1) - x0 ? d1 : d0
       focus.attr("transform", "translate(" + x(d.date) + "," + y(d.value) + ")");
-      focus.select("text").text(function() { return `Avg. star rating before ${d.date.toString().substr(0,15)}: ${d.value.toFixed(2)}`; });
+      focus.select("text").text(function() { return `${d.date.toString().substr(0,15)}: ${d.value.toFixed(2)}`; });
       focus.select(".x-hover-line").attr("y2", height - y(d.value));
       focus.select(".y-hover-line").attr("x2", width + width);
     }
@@ -136,8 +133,10 @@ function TimeSeries(props) {
   }, [props]);
 
   return (
-    <div className="time-series-svg-wrapper">
-      <div id="time-series-svg"></div>
+    <div className="time-series-svg-wrapper" id="popup">
+      <div id="time-series-svg" style={{gridArea: '2/1/2/1'}}>
+      <span>Average rating over time</span>
+      </div>
     </div>
   )
 }

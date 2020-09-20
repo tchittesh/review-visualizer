@@ -124,3 +124,33 @@ a {
 .double-chart {
   grid-area: 1 / 1 / 1 / 3;
 }
+
+.flex-container {
+  display: flex;
+  justify-content: space-between;
+  flex-direction: row;
+}
+
+#popup div {
+	position: relative;
+	display: block;
+}
+
+#popup div span {
+	display: none;
+}
+
+#popup div:hover span {
+	display: block;
+	position: absolute;
+	top: 0px;
+	left: 170px;
+	width: 320px;
+	margin: 0px;
+	padding: 5px;
+	font-weight: normal;
+  border-radius: 5px;
+	background: white;
+	text-align: center;
+	border: 1px solid #666;
+}

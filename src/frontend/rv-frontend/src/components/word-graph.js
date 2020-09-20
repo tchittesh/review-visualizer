@@ -1,5 +1,6 @@
 import React, { useEffect, useRef } from 'react';
 import * as d3 from 'd3';
+import '../css/word-graph.css';
 
 // based on demo here: https://observablehq.com/@pjayathissa/disjoint-labeled-force-directed-graph
 function WordGraph(props) {
@@ -62,8 +63,8 @@ function WordGraph(props) {
     "links": links,
   }];
 
-  let height = 400;
-  let width = 680;
+  let height = 450;
+  let width = 600;
 
   let color = d => d3.interpolateRdYlGn((d.valence + 1)/2);
 
@@ -168,7 +169,11 @@ function WordGraph(props) {
   }, [props]);
 
   return (
-    <div style={{gridArea: '2/1/2/1'}} ref={svg}></div>
+    <div id="popup">
+    <div style={{gridArea: '2/1/2/1'}} ref={svg}>
+    <span style={{top: "-15px", left: "200px"}}>Keyphrase Graph<br />Edges connect keyphrases commonly appearing together.</span>
+    </div>
+    </div>
   )
 }
 

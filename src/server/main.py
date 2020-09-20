@@ -11,7 +11,7 @@ from keyword_extractor import KeywordReviewGraph, get_pros_and_cons
 app = Flask(__name__)
 CORS(app, resources={r"/*": {"origins": "*"}})
 
-dataset = load_amazon_dataset('../../data/amazon_reviews_us_Wireless_v1_00.tsv', max_reviews = None)
+dataset = load_amazon_dataset('../../data/amazon_reviews_us_Wireless_v1_00.tsv', max_reviews = 200000)
 product_names = set([name.lower() for name in dataset["product_title"]])
 
 @app.route('/')
