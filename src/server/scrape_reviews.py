@@ -40,7 +40,7 @@ def get_reviews(page_url):
             try:
                 review = {}
                 review['review_headline'] = review_div.contents[1].contents[2].contents[1].contents[0]
-                review['star_rating'] = int(review_div.contents[1].contents[0].contents[0].contents[0].contents[0][0])
+                review['star_rating'] = review_div.contents[1].contents[0].contents[0].contents[0].contents[0][0]
                 review['review_body'] = review_div.contents[4].contents[0].contents[1].contents[0]
                 date_words = review_div.contents[2].contents[0].split()
                 date = datetime.strptime(date_words[-2] + " " + date_words[-3] + " " + date_words[-1], '%d, %B %Y')

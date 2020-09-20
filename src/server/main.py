@@ -1,6 +1,8 @@
 from flask import Flask, request, abort
 from flask_cors import CORS
+import pandas as pd
 
+from scrape_reviews import get_reviews
 from load import load_amazon_dataset
 from sentiment_analysis import get_review_sentiments
 from time_series_data import get_moving_star_avg
@@ -46,16 +48,25 @@ def get_visualization_data():
     if input_name is None:
         abort(400)
 
-    product_id, product_name = None, None
-    for i in range(len(dataset)):
-        if input_name in dataset["product_title"][i]:
-            product_id = dataset["product_id"][i]
-            product_name = dataset["product_title"][i]
-            break
-    if product_id is None:
-        abort(400)
+    if input_name.startswith('http'):
+        reviews = get_reviews(input_name)
+        product_reviews = pd.DataFrame(reviews)
+        product_reviews = product_reviews.sort_values('review_date')
+        split_input = input_name.split('/')
+        if len(split_input) < 4:
+            abort(400)
+        product_name = split_input[3]
+    else:
+        product_id, product_name = None, None
+        for i in range(len(dataset)):
+            if input_name in dataset["product_title"][i]:
+                product_id = dataset["product_id"][i]
+                product_name = dataset["product_title"][i]
+                break
+        if product_id is None:
+            abort(400)
 
-    product_reviews = dataset.loc[dataset["product_id"] == product_id]
+        product_reviews = dataset.loc[dataset["product_id"] == product_id]
 
     overall_sentiment_results = get_review_sentiments(product_reviews)
     graph = KeywordReviewGraph(product_reviews)
