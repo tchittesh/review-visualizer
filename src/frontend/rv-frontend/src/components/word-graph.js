@@ -29,16 +29,29 @@ function WordGraph(props) {
   }));
 
   let links = [];
+  // use top (2 * keywords.length) edges
+  let probabilities = [];
   for (let keyword1 of keywords) {
     for (let keyword2 of keywords) {
       if (keyword1 === keyword2) {
         continue;
       }
-      if (keyword_pair_probabilities[keyword1][keyword2] > 1 / keywords.length) {
+      probabilities.push(keyword_pair_probabilities[keyword1][keyword2]);
+    }
+  }
+  probabilities.sort((a, b) => b-a);
+  let threshold = -1;
+  if (2*keywords.length < probabilities.length) threshold = probabilities[2*keywords.length];
+  for (let keyword1 of keywords) {
+    for (let keyword2 of keywords) {
+      if (keyword1 === keyword2) {
+        continue;
+      }
+      if (keyword_pair_probabilities[keyword1][keyword2] > threshold) {
         links.push({
           source: keyword1,
           target: keyword2,
-          value: 5 * keyword_pair_probabilities[keyword1][keyword2],
+          value: 2,
         });
       }
     }

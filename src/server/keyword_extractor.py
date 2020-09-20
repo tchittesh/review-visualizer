@@ -16,15 +16,31 @@ def get_keywords(product_reviews):
     return results
 
 
-def get_aggregate_keywords(product_reviews, max_keywords = 20):
+def get_aggregate_keywords(product_reviews, max_keywords = 20, improve_quality = True):
     strings = []
     for i in range(len(product_reviews)):
         product_review = product_reviews.iloc[i]
         strings.append(product_review["review_headline"])
         strings.append(product_review["review_body"])
     r.extract_keywords_from_sentences(strings)
-    result = r.get_ranked_phrases()[:max_keywords]
-    return result
+    if improve_quality:
+        top_2n_keywords = r.get_ranked_phrases()[:2*max_keywords]
+        # get pairwise fuzzy distances
+        G = {}
+        for i in range(len(top_2n_keywords)):
+            for j in range(len(top_2n_keywords)):
+                if i == j:
+                    continue
+                kw1 = top_2n_keywords[i]
+                kw2 = top_2n_keywords[j]
+                p1, p2 = (kw2, kw1) if len(kw1) < len(kw2) else (kw2, kw1)
+                G[(i, j)] = fuzz.ratio(p1, p2)
+        scores = [sum(G[(i, j)] for j in range(len(top_2n_keywords)) if i != j) for i in range(len(top_2n_keywords))]
+        # choose lowest n similarity scores
+        top_n_indices = sorted(list(range(len(top_2n_keywords))), key = lambda i: scores[i])[:max_keywords]
+        return [top_2n_keywords[i] for i in top_n_indices]
+    else:
+        return r.get_ranked_phrases()[:max_keywords]
 
 
 def get_pros_and_cons(product_reviews, count = 3):
@@ -49,10 +65,9 @@ def get_pros_and_cons(product_reviews, count = 3):
 
 class KeywordReviewGraph():
 
-    def __init__(self, product_reviews, max_keywords = 20, min_match_score = 50):
+    def __init__(self, product_reviews, max_keywords = 20):
         self.keywords = get_aggregate_keywords(product_reviews, max_keywords = max_keywords)
         self.product_reviews = product_reviews
-        self.min_match_score = min_match_score
 
         self.graph = defaultdict(list) # maps keywords to (review number, match score) and review number to (keyword, match score)
         self.keyword_review_pair_to_match_score = {}
@@ -64,6 +79,14 @@ class KeywordReviewGraph():
                 self.graph[keyword].append([i, match_score])
                 self.graph[i].append([keyword, match_score])
                 self.keyword_review_pair_to_match_score[(keyword, i)] = match_score
+
+        count, total = 0, 0
+        for keyword in self.keywords:
+            for i in range(len(self.product_reviews)):
+                count += 1
+                total += self.keyword_review_pair_to_match_score[(keyword, i)]
+        avg_match_score = total / count
+        self.min_match_score = 4/3 * avg_match_score
 
     def compute_keyword_frequencies(self):
         keyword_frequencies = {}
