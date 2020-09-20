@@ -13,6 +13,7 @@
 .time-series-svg-wrapper {
   width:100%;
   text-align:center;
+  grid-area: 2 / 2 / 2 / 2;
 }
 
 .overlay {
@@ -33,5 +34,5 @@
 }
 
 .text-desc {
-  
+
 }

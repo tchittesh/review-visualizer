@@ -2,6 +2,8 @@ table {
   font-family: arial, sans-serif;
   border-collapse: collapse;
   width: 100%;
+  align-self: center;
+  grid-area: 3 / 2 / 3 / 2;
 }
 
 td, th {
