@@ -27,6 +27,26 @@ def get_aggregate_keywords(product_reviews, max_keywords = 20):
     return result
 
 
+def get_pros_and_cons(product_reviews, count = 3):
+    negative_reviews = product_reviews.loc[product_reviews["star_rating"].isin(["1", "2"])]
+    positive_reviews = product_reviews.loc[product_reviews["star_rating"].isin(["4", "5"])]
+
+    if len(negative_reviews) == 0:
+        cons = ["_"] * count
+    else:
+        cons = get_aggregate_keywords(negative_reviews, max_keywords = 3)
+
+    if len(positive_reviews) == 0:
+        pros = ["_"] * count
+    else:
+        pros = get_aggregate_keywords(positive_reviews, max_keywords = 3)
+
+    return {
+        "cons": cons,
+        "pros": pros,
+    }
+
+
 class KeywordReviewGraph():
 
     def __init__(self, product_reviews, max_keywords = 20, min_match_score = 50):
